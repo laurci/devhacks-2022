@@ -53,7 +53,8 @@ function parseType(checker: TypeChecker, rootType: Type): {
         });
     }
 
-    const formatString = `>${props.map(p => typeMap[p.type]).join("")}`;
+    // ESP32 is little endian. (<)
+    const formatString = `<${props.map(p => typeMap[p.type]).join("")}`;
     const propsOrder = props.map(p => p.name);
 
     return {
