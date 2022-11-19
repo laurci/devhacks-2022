@@ -1,6 +1,7 @@
 {
     "typescript.tsdk": "node_modules/typescript/lib",
     "editor.formatOnSave": true,
+    "eslint.enable": false,
     "editor.defaultFormatter": "esbenp.prettier-vscode", // use prettier for formatting everything except TS/TSX
     "[typescript]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"

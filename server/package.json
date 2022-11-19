@@ -8,13 +8,18 @@
     "scripts": {
         "build": "tsc",
         "clean": "rimraf dist",
-        "format": "prettier --write . && tsfmt -r"
+        "format": "prettier --write . && tsfmt -r",
+        "start": "node ."
     },
-    "dependencies": {},
+    "dependencies": {
+        "redis": "^4.5.0"
+    },
     "devDependencies": {
         "@types/node": "^18.11.3",
+        "@types/redis": "^4.0.11",
         "@typescript-eslint/eslint-plugin": "^5.40.0",
         "@typescript-eslint/parser": "^5.40.0",
+        "dotenv": "^16.0.3",
         "eslint": "^8.25.0",
         "prettier": "^2.7.1",
         "rimraf": "^3.0.2",

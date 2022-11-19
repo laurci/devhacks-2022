@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+    redis:
+        image: redis
+        ports:
+            - "6379:6379"
+        environment:
+            - REDIS_REPLICATION_MODE=master
+        working_dir: /data
+        volumes:
+            - redis_data:/data
+
+volumes:
+    redis_data:
+        driver: local
