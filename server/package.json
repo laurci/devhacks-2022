@@ -9,9 +9,11 @@
         "build": "tsc",
         "clean": "rimraf dist",
         "format": "prettier --write . && tsfmt -r",
-        "start": "node ."
+        "start": "node .",
+        "proto:exportc": "yarn build --script exportCStruct"
     },
     "dependencies": {
+        "@aksel/structjs": "^1.0.0",
         "redis": "^4.5.0"
     },
     "devDependencies": {

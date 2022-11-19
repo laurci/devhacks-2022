@@ -1,6 +1,7 @@
 import * as path from "path";
 import { config as configDotEnv } from "dotenv";
 import { inspect } from "util";
+import struct from "./struct";
 
 const isProductionRuntime = process.env.NODE_ENV === "production";
 
@@ -48,6 +49,25 @@ withGlobal("debug_log", (...args: LogArg[]) => {
     }
 
     process.stdout.write("\n");
+});
+
+withGlobal("make_packer", (formatString: string, propsOrder: string[]) => {
+    const str = struct(formatString);
+
+    return {
+        pack(value: unknown) {
+            const values = propsOrder.map(p => (value as any)[p]);
+            return str.pack(...values);
+        },
+        unpack(buffer: Buffer, offset = 0): unknown {
+            const values = str.unpack(buffer, offset);
+            const result: Record<string, unknown> = {};
+            for (let i = 0; i < propsOrder.length; i++) {
+                result[propsOrder[i]] = values[i];
+            }
+            return result;
+        }
+    }
 });
 
 withGlobal("load_app_from", (baseDir: string, relativePath: string) => {
