@@ -7,14 +7,11 @@ import world from "../lib/world";
 export default app!(() => {
     actor!("car", (self) => {
         update!(() => {
-            debug!("hello");
-
+            debug!("hello", self.id, self.position);
         });
     });
 
     actor!("semaphore", (self) => {
-        const position = world.getPositionOfLandmark(self);
-
-        world.defineZone(position, 10);
+        world.defineZone(self.position, 10);
     });
 });

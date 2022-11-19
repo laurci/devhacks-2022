@@ -4,7 +4,7 @@ import { getGlobalInvokeExpression } from "./lib";
 
 export macro function actor<T extends keyof Actors>(this: FunctionMacro, _actorType: T, _handler_func: (self: Actors[T]) => void) {
     this.transform(({ node, factory }) => {
-        node.replace(getGlobalInvokeExpression(factory, "make_actor", [node.arguments[0], node.arguments[1]]));
+        node.replace(getGlobalInvokeExpression(factory, "make_actor_type", [node.arguments[0], node.arguments[1]]));
     });
 }
 

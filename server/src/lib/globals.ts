@@ -2,6 +2,7 @@ import * as path from "path";
 import { config as configDotEnv } from "dotenv";
 import { inspect } from "util";
 import struct from "./struct";
+import { actorManager } from "./actor";
 
 const isProductionRuntime = process.env.NODE_ENV === "production";
 
@@ -85,6 +86,10 @@ withGlobal("init_app", (factory: () => void | Promise<void>) => {
     return factory;
 });
 
-withGlobal("make_actor", (type: string, factory: () => void | Promise<void>) => {
-    console.log("make actor", type, factory);
+withGlobal("make_actor_type", (type: string, factory: () => void | Promise<void>) => {
+    actorManager.bindActorHandler(type, factory);
+});
+
+withGlobal("actor_event", (type: string, handler: () => void | Promise<void>) => {
+    actorManager.bindActorEventHandler(type, handler);
 });
