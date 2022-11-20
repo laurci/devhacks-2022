@@ -30,7 +30,7 @@ function parseType(checker: TypeChecker, rootType: Type): {
         type: keyof typeof typeMap;
     }[]
 } {
-    const properties = ((rootType as any).properties ?? []) as Symbol[];
+    const properties = checker.getPropertiesOfType(rootType);
 
     const props: {
         name: string;
@@ -43,6 +43,7 @@ function parseType(checker: TypeChecker, rootType: Type): {
         }
         const type = checker.getTypeAtLocation(property.valueDeclaration);
         const typeName = checker.typeToString(type);
+
 
         if (!(typeName in typeMap)) {
             throw new Error(`Unsupported type ${typeName}`);
