@@ -26,7 +26,7 @@ export class BaseActor<TType = string> {
     private handles: Map<string, Function> = new Map();
 
     protected socket: WebSocket | null = null;
-    public send(buff: ArrayBuffer) {
+    protected send(buff: ArrayBuffer) {
         if (this.socket) {
             this.socket.send(buff);
         }
