@@ -127,18 +127,18 @@ export macro function exportCStruct(this: FunctionMacro) {
 
                 const { props } = parseType(checker, type);
 
-                output += `struct ${type.symbol.escapedName} {\n`;
+                output += `typedef struct {\n`;
                 for (const prop of props) {
                     output += `    ${prop.type}_t ${prop.name};\n`;
                 }
-                output += `};\n`;
+                output += `} ${type.symbol.escapedName};\n`;
                 output += `#define ID${camelToSnakeCase(type.symbol.escapedName.toString()).toUpperCase()} ${packerTag.id}\n`;
 
                 output += "\n";
             }
         }
 
-        const outputPath = Path.join(program.getCurrentDirectory(), "include", "proto.h");
+        const outputPath = Path.join(program.getCurrentDirectory(), "../firmware/mock", "proto.h");
         if (!Fs.existsSync(Path.dirname(outputPath))) {
             Fs.mkdirSync(Path.dirname(outputPath), { recursive: true });
         }
