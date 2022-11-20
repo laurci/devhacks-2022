@@ -31,7 +31,6 @@ export default app!(() => {
             if (!(msg.emitter instanceof Car)) return;
 
             if (msg.zone.actorsCount > 2) {
-                debug!("Junction is full!");
                 self.switch("green");
             }
         });
@@ -40,7 +39,6 @@ export default app!(() => {
             if (!(msg.emitter instanceof Car)) return;
 
             if (msg.zone.actorsCount <= 2) {
-                debug!("Junction is not full!");
                 self.switch("red");
             }
         });
