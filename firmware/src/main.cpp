@@ -14,6 +14,8 @@ CRGB leds[1];
 
 #define INIT_PACKET(name) (name*)initPacket(sizeof(name))
 
+#define Can Serial
+
 #define COLOR_RED 0xff, 0x00, 0x00
 #define COLOR_PINK 0xff, 0x00, 0xff
 #define COLOR_GREEN 0x00, 0xff, 0x00
@@ -86,7 +88,7 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
         free(frame); 
       }
       break;
-    
+
     case ID_TEST_PACKET:
       {
         auto frame = (TestPacket*)(payload + 1);
@@ -101,11 +103,38 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 
     default:
       {
-        Serial.print("Unhandled packet id ");
+        Serial.print("Unhandled net packet id ");
         Serial.println(packet_id, HEX);
       }
       break;
 
+  }
+}
+
+void writeCan(const uint8_t ty, void* data, size_t len) {
+  uint8_t *sendData = (uint8_t*)malloc(len + 3);
+  sendData[0] = 0xfe;
+  sendData[1] = 0xef;
+  sendData[2] = ty;
+  memcpy(sendData + 3, data, len);
+
+  Can.write(sendData, len + 3);
+}
+
+void readCan() {
+  if(!Can.available()) return;
+
+  uint8_t packet_id = Can.read();
+
+  switch(packet_id) {
+
+
+    default:
+      {
+        Serial.print("Unhandled CAN packet id ");
+        Serial.println(packet_id, HEX);
+      }
+      break;
   }
 }
 
@@ -143,9 +172,17 @@ void loop() {
   webSocket.loop();
 
   if(button()) {
+    auto frame = INIT_PACKET(TestCanFrame);
+
+    frame->i = 3;
+
+    writeCan(ID_TEST_CAN_FRAME, frame, sizeof(TestCanFrame));
+
     privacyMode = !privacyMode;
     lastBlink = millis();
   }
+
+  readCan();
 
   if(privacyMode) {
     if(millis() - lastBlink > 200) {
