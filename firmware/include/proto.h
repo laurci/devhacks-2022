@@ -5,6 +5,11 @@
 #include <stdint.h>
 
 typedef struct {
+    uint32_t i;
+} TestCanFrame;
+#define ID_TEST_CAN_FRAME 224
+
+typedef struct {
 } InitBeginFrame;
 #define ID_INIT_BEGIN_FRAME 1
 
