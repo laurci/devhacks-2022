@@ -166,6 +166,6 @@ export macro function exportCStruct(this: FunctionMacro) {
             Fs.mkdirSync(Path.dirname(outputPath), { recursive: true });
         }
 
-        Fs.writeFileSync(outputPath, output);
+        Fs.writeFileSync(outputPath, output.trim());
     });
 }
