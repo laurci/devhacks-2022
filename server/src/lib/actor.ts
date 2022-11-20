@@ -1,6 +1,7 @@
 import { debug } from "@meta/debug";
 import { AsyncLocalStorage } from "async_hooks";
 import { randomUUID } from "crypto";
+import proto from "../protocol";
 import type { WebSocket } from "ws";
 import { BaseMessage } from "./broker";
 import ENV from "./env";
@@ -78,6 +79,12 @@ export class Car extends BaseActor<"car"> {
 export class Junction extends BaseActor<"junction"> {
     constructor(position: Vector2) {
         super("junction", position);
+    }
+
+    public switch(color: "red" | "green" | "yellow") {
+        this.socket?.send(proto.junction.change.pack({
+            color: color == "red" ? 0x00 : color == "green" ? 0x01 : 0x02
+        }));
     }
 }
 

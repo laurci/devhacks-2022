@@ -10,6 +10,12 @@ typedef struct {
 #define ID_TEST_CAN_FRAME 224
 
 typedef struct {
+    uint32_t x;
+    uint32_t y;
+} PositionChangeFrame;
+#define ID_POSITION_CHANGE_FRAME 3
+
+typedef struct {
 } InitBeginFrame;
 #define ID_INIT_BEGIN_FRAME 1
 
@@ -20,6 +26,11 @@ typedef struct {
     uint32_t pos_y;
 } InitActorFrame;
 #define ID_INIT_ACTOR_FRAME 2
+
+typedef struct {
+    uint32_t color;
+} JunctionChangeFrame;
+#define ID_JUNCTION_CHANGE_FRAME 4
 
 typedef struct {
     uint32_t a;

@@ -6,7 +6,6 @@ class Entity {
 
 class JunctionApi {
     constructor(private world: World) {
-
     }
 }
 

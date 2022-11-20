@@ -2,7 +2,6 @@ import * as path from "path";
 import { inspect } from "util";
 import struct from "./struct";
 import "./world";
-import actorManager from "./actor";
 
 export function withGlobal<T>(key: string, value?: unknown): T | undefined {
     const fullKey = `__${key}`;
@@ -81,6 +80,8 @@ withGlobal("load_app_from", (baseDir: string, relativePath: string) => {
 withGlobal("init_app", (factory: () => void | Promise<void>) => {
     return factory;
 });
+
+import actorManager from "./actor";
 
 withGlobal("make_actor_type", (type: string, factory: () => void | Promise<void>) => {
     actorManager.bindActorHandler(type, factory);

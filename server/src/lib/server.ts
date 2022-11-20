@@ -15,7 +15,8 @@ enum InitPhase {
 export function startServer() {
     const wss = new Ws.Server({ port: ENV.server.port, host: ENV.server.host });
     wss.on("connection", (socket) => {
-        debug!("new connection");
+        // debug!("new connection");
+
         socket.binaryType = "arraybuffer";
 
         let initPhase = InitPhase.None;
@@ -36,7 +37,7 @@ export function startServer() {
                 const arr = new Uint8Array(data);
                 if (arr[0] == proto.init.actor.id) {
                     const packet = proto.init.actor.unpack(data, 1);
-                    debug!("init actor", packet);
+                    // debug!("init actor", packet);
 
                     if (packet.type == 0x00) {
                         actor = new Junction(new Vector2(+packet.pos_x, +packet.pos_y));
