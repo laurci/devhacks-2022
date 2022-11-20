@@ -46,13 +46,15 @@ withGlobal("debug_log", (...args: LogArg[]) => {
     process.stdout.write("\n");
 });
 
-withGlobal("make_packer", (formatString: string, propsOrder: string[]) => {
+withGlobal("make_packer", (id: number, formatString: string, propsOrder: string[]) => {
     const str = struct(formatString);
 
     return {
+        id,
         pack(value: unknown) {
             const values = propsOrder.map(p => (value as any)[p]);
-            return str.pack(...values);
+            const data = new Uint8Array(str.pack(...values));
+            return new Uint8Array([id, ...data]).buffer;
         },
         unpack(buffer: Buffer, offset = 0): unknown {
             const values = str.unpack(buffer, offset);

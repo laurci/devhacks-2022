@@ -1,6 +1,7 @@
 import { debug } from "@meta/debug";
 import { AsyncLocalStorage } from "async_hooks";
 import { randomUUID } from "crypto";
+import type { WebSocket } from "ws";
 import { BaseMessage } from "./broker";
 import ENV from "./env";
 import { Vector2 } from "./math";
@@ -23,6 +24,17 @@ export class BaseActor<TType = string> {
 
     private components: BaseComponent[] = [];
     private handles: Map<string, Function> = new Map();
+
+    protected socket: WebSocket | null = null;
+    protected send(buff: ArrayBuffer) {
+        if (this.socket) {
+            this.socket.send(buff);
+        }
+    }
+
+    public bindSocket(socket: WebSocket) {
+        this.socket = socket;
+    }
 
     protected constructor(
         public type: string,

@@ -16,11 +16,13 @@
         "@aksel/structjs": "^1.0.0",
         "@types/uuid": "^8.3.4",
         "redis": "^4.5.0",
-        "uuid": "^9.0.0"
+        "uuid": "^9.0.0",
+        "ws": "^8.11.0"
     },
     "devDependencies": {
         "@types/node": "^18.11.3",
         "@types/redis": "^4.0.11",
+        "@types/ws": "^8.5.3",
         "@typescript-eslint/eslint-plugin": "^5.40.0",
         "@typescript-eslint/parser": "^5.40.0",
         "dotenv": "^16.0.3",

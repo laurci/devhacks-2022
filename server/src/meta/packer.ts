@@ -4,6 +4,7 @@ import * as Path from "path";
 import * as Fs from "fs";
 
 interface Packer<T> {
+    id: number;
     pack(value: T): ArrayBuffer;
     unpack(buffer: ArrayBuffer, offset?: number): T;
 }
@@ -76,7 +77,29 @@ export macro function packer<T>(this: FunctionMacro): Packer<T> {
         const rootType = checker.getTypeAtLocation(firstArg);
         const { formatString, propsOrder } = parseType(checker, rootType);
 
+        const decl = rootType.symbol?.declarations?.find(isInterfaceDeclaration);
+        if (!decl || !isInterfaceDeclaration(decl)) {
+            throw new Error("packer must be used on an interface");
+        }
+
+        const tags = getAllJSDocTags(decl, (tag): tag is JSDocTag => tag.tagName.escapedText === "packer");
+        if (tags.length === 0) {
+            throw new Error("Interface must have a @packer tag");
+        }
+
+        const tag = tags[0]!;
+
+        if (typeof tag.comment !== "string") {
+            throw new Error("Expected @packer tag to have a string comment");
+        }
+
+        const packerTag = eval(`(${tag.comment})`) as PackerTag;
+        if (typeof packerTag !== "object") {
+            throw new Error("Expected @packer tag to contain an object");
+        }
+
         node.replace(getGlobalInvokeExpression(factory, "make_packer", [
+            factory.createNumericLiteral(packerTag.id),
             factory.createStringLiteral(formatString),
             factory.createArrayLiteralExpression(propsOrder.map(p => factory.createStringLiteral(p)), false),
         ]))

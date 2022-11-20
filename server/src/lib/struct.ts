@@ -1,7 +1,7 @@
 import structjs from "@aksel/structjs";
 
 export interface Struct {
-    pack(...values: unknown[]): Buffer;
+    pack(...values: unknown[]): ArrayBuffer;
     unpack(buffer: ArrayBuffer, offset?: number): unknown[];
 }
 

@@ -1,7 +1,7 @@
 import { uint8 } from "./types";
 
 /**
- * @packer {id: 0x01}
+ * @packer {id: 0xf1}
  */
 export interface TestPacket {
     a: uint8;
