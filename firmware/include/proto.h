@@ -17,8 +17,7 @@ typedef struct {
 #define ID_INIT_ACTOR_FRAME 2
 
 typedef struct {
-    uint8_t a;
-    uint8_t b;
+    uint32_t a;
+    uint32_t b;
 } TestPacket;
 #define ID_TEST_PACKET 241
-

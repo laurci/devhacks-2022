@@ -27,6 +27,11 @@ export function startServer() {
 
         let actor: BaseActor;
 
+        setTimeout(() => {
+            console.log("send test");
+            actor.send(proto.test.pack({ a: 11, b: 22 }));
+        }, 10_000);
+
         socket.on("message", (data: ArrayBuffer) => {
             if (initPhase == InitPhase.Ready) {
                 if (actor) {
