@@ -86,6 +86,18 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
         free(frame); 
       }
       break;
+    
+    case ID_TEST_PACKET:
+      {
+        auto frame = (TestPacket*)(payload + 1);
+        Serial.println("Test packet");
+        Serial.print(frame->a);
+        Serial.print(" + ");
+        Serial.print(frame->b);
+        Serial.print(" ");
+        Serial.println(frame->a + frame->b);
+      }
+      break;
 
     default:
       {
