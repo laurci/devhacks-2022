@@ -161,7 +161,7 @@ export macro function exportCStruct(this: FunctionMacro) {
             }
         }
 
-        const outputPath = Path.join(program.getCurrentDirectory(), "../firmware/mock", "proto.h");
+        const outputPath = Path.join(program.getCurrentDirectory(), "../firmware/include", "proto.h");
         if (!Fs.existsSync(Path.dirname(outputPath))) {
             Fs.mkdirSync(Path.dirname(outputPath), { recursive: true });
         }
