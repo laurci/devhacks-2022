@@ -1,4 +1,4 @@
-import "./lib/globals";
+import "./lib/node-globals";
 
 import { startRedis } from "./lib/redis";
 import { startServer } from "./lib/server";
