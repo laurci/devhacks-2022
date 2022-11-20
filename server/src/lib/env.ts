@@ -1,3 +1,11 @@
+import { config as configDotEnv } from "dotenv";
+
+const isProductionRuntime = process.env.NODE_ENV === "production";
+
+if (!isProductionRuntime) {
+    configDotEnv();
+}
+
 function getEnvVarOrThrow(name: string): string {
     const value = process.env[name];
     if (value === undefined) {
@@ -21,6 +29,9 @@ const ENV = {
         port: parseInt(getEnvVarOrDefault("REDIS_PORT", "6379")),
         database: parseInt(getEnvVarOrDefault("REDIS_DATABASE", "0")),
     },
+    distances: {
+        messageBroadcastRadius: parseInt(getEnvVarOrDefault("MESSAGE_BROADCAST_RADIUS", "1000")),
+    }
 } as const;
 
 export default ENV;

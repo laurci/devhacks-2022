@@ -14,7 +14,9 @@
     },
     "dependencies": {
         "@aksel/structjs": "^1.0.0",
-        "redis": "^4.5.0"
+        "@types/uuid": "^8.3.4",
+        "redis": "^4.5.0",
+        "uuid": "^9.0.0"
     },
     "devDependencies": {
         "@types/node": "^18.11.3",

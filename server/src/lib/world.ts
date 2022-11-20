@@ -1,22 +1,37 @@
-import { LandmarkActor } from "./actor";
-import { Vector2 } from "./math";
+import { debug } from "@meta/debug";
+import { v4 as uuid } from "uuid";
 
-export interface WorldApi {
-    defineZone(position: Vector2, radius: number): void;
-    getPositionOfLandmark(landmark: LandmarkActor): Vector2;
+class Entity {
+}
+
+class JunctionApi {
+    constructor(private world: World) {
+
+    }
+}
+
+class CarApi {
+    constructor(private world: World) {
+
+    }
+}
+
+interface WorldApi {
+    get junction(): JunctionApi;
+    get car(): CarApi;
 }
 
 class World implements WorldApi {
-    defineZone(position: Vector2, radius: number) {
-        console.log("defineZone", position, radius);
-    }
 
-    getPositionOfLandmark(landmark: LandmarkActor): Vector2 {
-        return new Vector2(0, 0);
-    }
+    public junction = new JunctionApi(this);
+    public car = new CarApi(this);
 }
 
 const world = new World();
-export const worldManager = world;
 
-export default world as WorldApi;
+declare global {
+    var world: WorldApi;
+}
+(globalThis as any).world = world;
+
+export default world;

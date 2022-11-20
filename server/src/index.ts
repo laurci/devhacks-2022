@@ -4,8 +4,10 @@ import { startRedis } from "./lib/redis";
 import { startServer } from "./lib/server";
 import { initApplications } from "./lib/manager";
 import { debug } from "@meta/debug";
-import { actorManager, CarActor } from "./lib/actor";
 import { Vector2 } from "./lib/math";
+import actorManager, { Car, Junction } from "./lib/actor";
+import { PositionUpdateMessage } from "./lib/broker";
+import { RectangularZone } from "./lib/components/zone";
 
 async function main() {
     const applicationFilter = process.argv.length > 2 ? process.argv[2] : undefined;
@@ -15,24 +17,40 @@ async function main() {
 
     await initApplications(applicationFilter);
 
-    const testActor: CarActor = {
-        id: 1,
-        type: "car",
-        position: new Vector2(0, 0)
-    };
+    const junction = new Junction(
+        new Vector2(0, 0),
+    )
 
-    actorManager.initActor(testActor);
+    junction.addComponent(RectangularZone, {
+        position: new Vector2(0, 0),
+        dimensions: new Vector2(10, 10)
+    });
+    actorManager.initActor(junction);
 
-    actorManager.sendEventForActor({
-        type: "update",
-    }, actorManager.getActorId(testActor));
+    const car = new Car(
+        new Vector2(-5, -5)
+    );
+    const car2 = new Car(
+        new Vector2(-5, -5)
+    );
 
-    const actor = actorManager.getActor("car", 1);
-    actor.position = new Vector2(1, 1);
+    const car3 = new Car(
+        new Vector2(-5, -5)
+    );
 
-    actorManager.sendEventForActor({
-        type: "update",
-    }, actorManager.getActorId(testActor));
+
+    actorManager.initActor(car);
+    actorManager.initActor(car2);
+    actorManager.initActor(car3);
+
+    car.position = new Vector2(3, 3);
+    actorManager.handleMessage(new PositionUpdateMessage(car));
+
+    car2.position = new Vector2(7, 7);
+    actorManager.handleMessage(new PositionUpdateMessage(car2));
+
+    car3.position = new Vector2(8, 8);
+    actorManager.handleMessage(new PositionUpdateMessage(car3));
 
     startServer();
 

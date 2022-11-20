@@ -1,16 +1,10 @@
 import * as path from "path";
-import { config as configDotEnv } from "dotenv";
 import { inspect } from "util";
 import struct from "./struct";
-import { actorManager } from "./actor";
+import "./world";
+import actorManager from "./actor";
 
-const isProductionRuntime = process.env.NODE_ENV === "production";
-
-if (!isProductionRuntime) {
-    configDotEnv();
-}
-
-function withGlobal<T>(key: string, value?: unknown): T | undefined {
+export function withGlobal<T>(key: string, value?: unknown): T | undefined {
     const fullKey = `__${key}`;
     if (typeof value == "undefined") {
         return (globalThis as unknown as Record<string, unknown>)[fullKey] as T;
@@ -90,6 +84,3 @@ withGlobal("make_actor_type", (type: string, factory: () => void | Promise<void>
     actorManager.bindActorHandler(type, factory);
 });
 
-withGlobal("actor_event", (type: string, handler: () => void | Promise<void>) => {
-    actorManager.bindActorEventHandler(type, handler);
-});

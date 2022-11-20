@@ -1,115 +1,122 @@
 import { debug } from "@meta/debug";
 import { AsyncLocalStorage } from "async_hooks";
+import { randomUUID } from "crypto";
+import { BaseMessage } from "./broker";
+import ENV from "./env";
 import { Vector2 } from "./math";
 
-export interface BaseActor {
-    id: number;
-    type: keyof Actors;
-    position: Vector2;
+type MesasgeHandler = (message: BaseMessage) => void;
+
+
+export abstract class BaseComponent<TOptions = void> {
+    constructor(protected actor: BaseActor, protected options: TOptions) {
+
+    }
+    abstract handleMessage(message: BaseMessage): void;
 }
 
-export interface LandmarkActor {
+type ComponentOptions<T> = T extends BaseComponent<infer TOptions> ? TOptions extends void ? never : TOptions : never;
+type AddComponentArgs<T extends BaseComponent<any>> = ComponentOptions<T> extends void ? [component: { new(...args: any): T }] : [component: { new(...args: any): T }, options: ComponentOptions<T>];
+
+export class BaseActor<TType = string> {
+    public id = randomUUID();
+
+    private components: BaseComponent[] = [];
+    private handles: Map<string, Function> = new Map();
+
+    protected constructor(
+        public type: string,
+        public position: Vector2,
+    ) {
+
+    }
+
+    public addHandle(type: string, handle: MesasgeHandler) {
+        this.handles.set(type, handle);
+    }
+
+    public addComponent<T extends BaseComponent<any>>(...options: AddComponentArgs<T>) {
+        const [constructor, opts] = options;
+        this.components.push(new constructor(this, opts));
+    }
+
+    public handleMessage(message: BaseMessage) {
+        const handle = this.handles.get(message.type);
+        if (handle) {
+            handle(message);
+        }
+
+        const allHandle = this.handles.get("*");
+        if (allHandle) {
+            allHandle(message);
+        }
+
+        for (const component of this.components) {
+            component.handleMessage(message);
+        }
+    }
 }
 
-export interface CarActor extends BaseActor {
-    type: "car";
+export class Car extends BaseActor<"car"> {
+    constructor(position: Vector2) {
+        super("car", position);
+    }
 }
 
-export interface SemaphoreActor extends BaseActor, LandmarkActor {
-    type: "semaphore";
+export class Junction extends BaseActor<"junction"> {
+    constructor(position: Vector2) {
+        super("junction", position);
+    }
 }
 
-export type Actors = {
-    "car": CarActor,
-    "semaphore": SemaphoreActor,
-}
-
-export type AllActors = Actors[keyof Actors];
-
-export interface BaseEvent {
-    type: keyof ActorEvents;
-}
-
-export interface UpdateEvent extends BaseEvent {
-    type: "update"
-}
-
-export type ActorEvents = {
-    update: UpdateEvent,
-}
-
-export type AllActorEvents = ActorEvents[keyof ActorEvents];
-
+export type ActorHandler = (actor: BaseActor) => void;
 
 class ActorManager {
     private actorIdStorage = new AsyncLocalStorage<string>();
+    private actors: Map<string, BaseActor> = new Map();
+    private actorHandlers = new Map<string, ActorHandler>();
 
-    private actors = new Map<string, AllActors>();
-    private actorHandlers = new Map<string, (actor: BaseActor) => void>();
-    private actorEventHandlers = new Map<string, (ev: AllActorEvents) => void | Promise<void>>();
-
-    public bindActorHandler(type: string, handler: (actor: BaseActor) => void) {
-        this.actorHandlers.set(type, handler);
-    }
-
-    public getActorId(actor: { id: number, type: string }) {
-        return `${actor.type}:${actor.id}`;
-    }
-
-    public initActor(actor: AllActors) {
-        const actorId = this.getActorId(actor);
-        this.actors.set(actorId, actor);
-
-        const handler = this.actorHandlers.get(actor.type);
-        if (!handler) {
-            debug!("No handler registered", actor.type);
-            return;
+    public getActorsInRadius(position: Vector2, radius: number) {
+        const actors: BaseActor[] = [];
+        for (const actor of this.actors.values()) {
+            if (actor.position.inRadius(position, radius)) {
+                actors.push(actor);
+            }
         }
+        return actors;
+    }
 
-        this.runWithActorId(actorId, () => {
-            handler(actor);
+    public initActor(actor: BaseActor) {
+        this.actors.set(actor.id, actor);
+        const handler = this.actorHandlers.get(actor.type);
+        this.actorIdStorage.run(actor.id, () => {
+            if (handler) {
+                handler(actor);
+            }
         });
     }
 
-    public getActor<T extends keyof Actors>(type: T, id: number): Actors[T] {
-        const actorId = this.getActorId({ type, id });
-        const actor = this.actors.get(actorId);
-        if (!actor) {
-            throw new Error(`Actor ${actorId} not found`);
+    public handleMessage(message: BaseMessage) {
+        const actors = this.getActorsInRadius(message.position, ENV.distances.messageBroadcastRadius);
+        for (const actor of actors) {
+            actor.handleMessage(message);
         }
-
-        return actor as Actors[T];
     }
 
-    public bindActorEventHandler(type: string, handler: (ev: AllActorEvents) => void | Promise<void>) {
-        const actorId = this.getCurrentActorId();
-        const key = `${actorId}:${type}`;
-        this.actorEventHandlers.set(key, handler);
-    }
-
-    public sendEventForActor(ev: AllActorEvents, actorId: string) {
-        const key = `${actorId}:${ev.type}`;
-        const handler = this.actorEventHandlers.get(key);
-        if (!handler) {
-            debug!("No handler registered", key);
-            return;
-        }
-        handler(ev);
-    }
-
-    private async runWithActorId(id: string, fn: () => void) {
-        this.actorIdStorage.run(id, fn);
+    public bindActorHandler(type: string, handler: ActorHandler) {
+        this.actorHandlers.set(type, handler);
     }
 
     public getCurrentActorId() {
-        const actorType = this.actorIdStorage.getStore();
-        if (!actorType) {
-            throw new Error("Expected actorType to be set");
+        const id = this.actorIdStorage.getStore();
+        if (!id) {
+            throw new Error("No actor id set");
         }
 
-        return actorType;
+        return id;
     }
 }
 
-export const actorManager = new ActorManager();
+const actorManager = new ActorManager();
 
+export default actorManager;
